@@ -8,6 +8,7 @@ import chokidar from "chokidar"
 import path from "path";
 import { editorEventHandler } from './socketHandlers/editorEventhandler.js';
 import queryString from 'query-string';
+import { handleCreateContainer } from '../Projects/5c593ab2-81bd-4ca3-96d0-2bc7970ca0d5/sandbox/src/Containers/handleCreateContainer.js';
 
 
 const app = express();
@@ -64,6 +65,27 @@ editornamespace.on('connection', (socket) => {
         await watcher.close();
         console.log("server disconnected");
     })
+
+});
+
+const terminalnamespace=io.of('terminal');
+
+terminalnamespace.on('connection',(socket)=>{
+
+    console.log("terminal connected")
+
+    const ProjectId=socket.handshake.query['id'];
+
+     handleCreateContainer(socket,ProjectId);
+
+    socket.on('disconnect',()=>{
+        console.log("terminal disconnected");
+    })
+
+    // socket.on('shell-input',(data)=>{
+    //     socket.emit("shell-output",data);
+    // })
+
 
 })
 

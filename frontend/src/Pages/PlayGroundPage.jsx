@@ -8,12 +8,13 @@ import io from 'socket.io-client'
 import { useEffect } from "react";
 import { treeStructureStore } from "../store/treeStructureStore.js";
 import { FolderContextModal } from "../component/Molecules/Modals/FolderContextModal.jsx";
+import { BrowserTerminal } from "../component/Molecules/BrowserTerminal/BrowserTerminal.jsx";
 
 
 
 export const PlayGround = () => {
 
-    const { projectId } = useParams();
+    const { projectId:projectIDfromURL } = useParams();
 
     const{editorSocket,setEditorSocket}=useEditorsocketStore();
     const{setprojectId}=treeStructureStore();
@@ -21,18 +22,20 @@ export const PlayGround = () => {
    
 
     useEffect(()=>{
-        setprojectId(projectId);
+        setprojectId(projectIDfromURL);
         const editorSocketConn=io(`${import.meta.env.VITE_BACKEND_URL}/editor`,{
-            query:`id=${projectId}`
+            query:`id=${projectIDfromURL}`
         });
 
         setEditorSocket(editorSocketConn);//this is socket for editor
         // console.log("editore")
-    },[projectId,setEditorSocket]);
+    },[projectIDfromURL,setEditorSocket]);
 
 
     return (
-        <div style={ { display: "flex" } }>
+        <>
+        
+        <div style={ { display: "flex"} }>
 
             <FolderContextModal/>
             <div style={{
@@ -44,13 +47,17 @@ export const PlayGround = () => {
                 height: "99.7vh",
                 overflow: "auto"
             }}>
-                {projectId}
+                {projectIDfromURL}
                 <TreeStructure />
             </div>
                 {(editorSocket)?<EditorComponent/>:null}
-            <EditorButton />
-        </div>
+            <EditorButton isActive={false}/>
 
+            
+
+        </div>
+        <BrowserTerminal/>
+        </>
 
     )
 

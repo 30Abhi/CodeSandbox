@@ -85,21 +85,28 @@ server.on("upgrade",(req,TCPsocket,head)=>{
     const Terminal=req.url.includes('/terminal');
 
     if(Terminal){
+
         console.log(req.url);
         const projectId=req.url.split("=")[1];
         console.log("project Id received",projectId)
+        
+        WebSocketforTerminal.handleUpgrade(req,TCPsocket,head,(establishedconnection)=>{
+            console.log("CONection UPGRADED..............");
+            handleCreateContainer(WebSocketforTerminal,projectId,req,establishedconnection,head);
+        });
 
+         
 
-        handleCreateContainer(WebSocketforTerminal,projectId,req,TCPsocket,head);
     }
 
 })
 
-WebSocketforTerminal.on('connection',(ws,req,container)=>{
+
+WebSocketforTerminal.on('connection', (ws,req,container)=>{
 
     console.log("TERMINAL CONNECTED");
-    
-    handleTerminalCreation(ws,container);
+
+     handleTerminalCreation(ws,container);
 
     ws.on('close',()=>{
         container.remove({force:true},(err,data)=>{
@@ -111,5 +118,6 @@ WebSocketforTerminal.on('connection',(ws,req,container)=>{
             }
         });
     })
+
 
 })

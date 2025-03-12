@@ -25,7 +25,7 @@ export const handleTerminalCreation=(ws,container)=>{
 
             // step 1:=>stream processing
             // process stream od container 
-             processStreamOutput(ws,stream);
+              processStreamOutput(ws,stream);
 
 
             // step 2:=> stream writing 
@@ -42,7 +42,7 @@ export const handleTerminalCreation=(ws,container)=>{
 }
 
 
-function processStreamOutput(ws,stream){
+function processStreamOutput (ws,stream){
     let nextDataType=null;// stores type of next incoming Data/chunk
     let nextDataLen=null;// stores len of next incoming Data/chunk
     let buffer=Buffer.from("");// stores  incoming Data/chunk

@@ -31,28 +31,36 @@ export const BrowserTerminal=()=>{
            
         },[]);
 
-        
-        let fitAddon = new FitAddon();
-        fitAddon.fit();
-        term.loadAddon(fitAddon);
-
-        
         term.open(terminalRef.current);
 
+        let fitAddon = new FitAddon();
+        term.loadAddon(fitAddon);
+        fitAddon.fit();
         // socket.io didnt work with exterm addons
         //use raw websocket
 
 
-        const ws=new WebSocket("ws://localhost:3000/terminal? projectID="+projectIDfromURL);
-        // socket.current.onerror = (error) => {
-        //     console.error('WebSocket error:', error);
-        // };
+        let ws=new WebSocket("ws://localhost:3000/terminal?projectID="+projectIDfromURL);
 
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+    
+
+        
         ws.onopen=()=>{
             const attachAddon=new AttachAddon(ws);
             term.loadAddon(attachAddon);
             socket.current=ws;
         }
+
+        ws.onclose = (event) => {
+           
+            console.log('WebSocket connection closed ', event);
+            confirm('Error in connection refresh again');
+
+        };
 
         
         return()=>{

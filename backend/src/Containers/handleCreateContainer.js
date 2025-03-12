@@ -6,6 +6,33 @@ const docker=new Docker();
 export const handleCreateContainer=async(Terminalsocket,projectID,req,EstablishedSocket,head)=>{
     console.log("ProjectID received on container creation",projectID)
     try {
+
+        // const ExistingContainer=await docker.listContainers({
+        //     Names:projectID,
+        // });
+
+        // //removing existing container with same name
+
+        // console.log("Existing Containers",ExistingContainer);
+
+        // if(ExistingContainer.length>0){
+        //     console.log('Removed Existing Container');
+        //     const container=docker.getContainer(ExistingContainer[0].Id);
+          
+        //     await container.remove({force:true});
+        // }
+
+        const allContainers = await docker.listContainers({ all: true });
+        const ExistingContainer = allContainers.find(container => container.Names.includes(`/${projectID}`));
+        
+        // Removing existing container with the same name
+        if (ExistingContainer) {
+            console.log('Removed Existing Container');
+            const container = docker.getContainer(ExistingContainer.Id);
+            console.log("Filtered container is", container.Names);
+            await container.remove({ force: true });
+        }
+
        
         const container =await docker.createContainer({
             //configuration of container
@@ -15,6 +42,7 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
             AttachStderr:true,
             Cmd:['/bin/bash'],
             Tty:true,
+            name:projectID,
             User:'sandbox',
     
             //configuration of interation bw container and host

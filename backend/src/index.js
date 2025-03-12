@@ -77,7 +77,7 @@ const WebSocketforTerminal=new WebSocketServer({
     noServer:true,
 });
 
-server.on("upgrade",(req,TCPsocket,head)=>{
+server.on("upgrade",async(req,TCPsocket,head)=>{
     //req- http request maded
     //socket- TCP socket
     //head- Buffer containing the first packet of Stream 
@@ -108,16 +108,7 @@ WebSocketforTerminal.on('connection', (ws,req,container)=>{
 
      handleTerminalCreation(ws,container);
 
-    ws.on('close',()=>{
-        container.remove({force:true},(err,data)=>{
-            if(err){
-                console.log('error in removing container',err);
-            }
-            else{
-                console.log('container remove',data);
-            }
-        });
-    })
+    
 
 
 })

@@ -5,11 +5,10 @@ import apirouter from './routes/index.js';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
 import chokidar from "chokidar"
-import path from "path";
 import { editorEventHandler } from './socketHandlers/editorEventhandler.js';
-import queryString from 'query-string';
-import { handleCreateContainer } from '../Projects/5c593ab2-81bd-4ca3-96d0-2bc7970ca0d5/sandbox/src/Containers/handleCreateContainer.js';
-
+import { handleCreateContainer } from './Containers/handleCreateContainer.js';
+import  { WebSocketServer } from 'ws';
+import { handleTerminalCreation } from './Containers/handleTerminalCreation.js';
 
 const app = express();
 const server = createServer(app);
@@ -68,27 +67,49 @@ editornamespace.on('connection', (socket) => {
 
 });
 
-const terminalnamespace=io.of('terminal');
 
-terminalnamespace.on('connection',(socket)=>{
-
-    console.log("terminal connected")
-
-    const ProjectId=socket.handshake.query['id'];
-
-     handleCreateContainer(socket,ProjectId);
-
-    socket.on('disconnect',()=>{
-        console.log("terminal disconnected");
-    })
-
-    // socket.on('shell-input',(data)=>{
-    //     socket.emit("shell-output",data);
-    // })
-
-
-})
 
 server.listen(port, () => {
     console.log('Server is running on port 3000');
+})
+
+const WebSocketforTerminal=new WebSocketServer({
+    noServer:true,
+});
+
+server.on("upgrade",(req,TCPsocket,head)=>{
+    //req- http request maded
+    //socket- TCP socket
+    //head- Buffer containing the first packet of Stream 
+    
+    const Terminal=req.url.includes('/terminal');
+
+    if(Terminal){
+        console.log(req.url);
+        const projectId=req.url.split("=")[1];
+        console.log("project Id received",projectId)
+
+
+        handleCreateContainer(WebSocketforTerminal,projectId,req,TCPsocket,head);
+    }
+
+})
+
+WebSocketforTerminal.on('connection',(ws,req,container)=>{
+
+    console.log("TERMINAL CONNECTED");
+    
+    handleTerminalCreation(ws,container);
+
+    ws.on('close',()=>{
+        container.remove({force:true},(err,data)=>{
+            if(err){
+                console.log('error in removing container',err);
+            }
+            else{
+                console.log('container remove',data);
+            }
+        });
+    })
+
 })

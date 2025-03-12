@@ -3,8 +3,8 @@ import { Terminal } from "@xterm/xterm"
 import { useEffect, useRef } from "react";
 import { FitAddon } from 'xterm-addon-fit';
 import "@xterm/xterm/css/xterm.css"
-import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
+import { AttachAddon } from "@xterm/addon-attach";
 
 export const BrowserTerminal=()=>{
     const { projectId:projectIDfromURL } = useParams();
@@ -39,24 +39,25 @@ export const BrowserTerminal=()=>{
         
         term.open(terminalRef.current);
 
-
-        socket.current=io(`${import.meta.env.VITE_BACKEND_URL}/terminal`,{
-            query:`id=${projectIDfromURL}`
-        });
-
-        socket.current.on('shell-output',(data)=>{
-            term.write(data);
-        })
+        // socket.io didnt work with exterm addons
+        //use raw websocket
 
 
-        term.onData( (data)=>{
-            console.log("input on shell received",data);
-            socket.current.emit('shell-input',data)
-        })
+        const ws=new WebSocket("ws://localhost:3000/terminal? projectID="+projectIDfromURL);
+        // socket.current.onerror = (error) => {
+        //     console.error('WebSocket error:', error);
+        // };
 
+        ws.onopen=()=>{
+            const attachAddon=new AttachAddon(ws);
+            term.loadAddon(attachAddon);
+            socket.current=ws;
+        }
+
+        
         return()=>{
             term.dispose();
-            socket.current.disconnect();
+           
         }
         
 

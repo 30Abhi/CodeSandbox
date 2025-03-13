@@ -51,13 +51,14 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
             },
             Env:[
                 "HOST=0.0.0.0",
-                "NODE_ENV=development"
-            
+                "NODE_ENV=development",
+                "CHOKIDAR_USEPOLLING=true" ,
+                
             ],
             HostConfig:{
                 Binds:[
                     //mounting project dir to conationer
-                    `${process.cwd()}/Projects/${projectID}:/home/sandbox/app:rw`
+                    `${process.cwd()}/Projects/${projectID}:/home/sandbox/app:delegated`
                 ],
     
                 PortBindings:{

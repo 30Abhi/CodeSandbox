@@ -5,15 +5,18 @@ import { FitAddon } from 'xterm-addon-fit';
 import "@xterm/xterm/css/xterm.css"
 import { useParams } from "react-router-dom";
 import { AttachAddon } from "@xterm/addon-attach";
+import { useEditorsocketStore } from "../../../store/editorSocketStore";
 
 export const BrowserTerminal=()=>{
     const { projectId:projectIDfromURL } = useParams();
+
+    const{editorSocket}=useEditorsocketStore();
     
     const terminalRef=useRef(null);
     const socket=useRef(null);
 
     useEffect(()=>{
-        const term=new Terminal({
+        const term= new Terminal({
             cursorBlink:true,
             theme:{
                 background:"#282a37",
@@ -40,19 +43,24 @@ export const BrowserTerminal=()=>{
         //use raw websocket
 
 
-        let ws=new WebSocket("ws://localhost:3000/terminal?projectID="+projectIDfromURL);
+        const ws=new WebSocket("ws://localhost:4000/terminal?projectID="+projectIDfromURL);
 
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
 
-    
+       
 
         
-        ws.onopen=()=>{
-            const attachAddon=new AttachAddon(ws);
-            term.loadAddon(attachAddon);
-            socket.current=ws;
+        ws.onopen=async ()=>{
+            const attachAddon=await new AttachAddon(ws);
+            await term.loadAddon(attachAddon);
+             socket.current=ws;
+
+             
+
+             await editorSocket.emit('GetContainerPort',projectIDfromURL);
+
         }
 
         ws.onclose = (event) => {

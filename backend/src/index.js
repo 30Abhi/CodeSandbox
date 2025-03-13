@@ -70,45 +70,6 @@ editornamespace.on('connection', (socket) => {
 
 
 server.listen(port, () => {
-    console.log('Server is running on port 3000');
+    console.log(' Socket io Server is running on port 3000');
 })
 
-const WebSocketforTerminal=new WebSocketServer({
-    noServer:true,
-});
-
-server.on("upgrade",async(req,TCPsocket,head)=>{
-    //req- http request maded
-    //socket- TCP socket
-    //head- Buffer containing the first packet of Stream 
-    
-    const Terminal=req.url.includes('/terminal');
-
-    if(Terminal){
-
-        console.log(req.url);
-        const projectId=req.url.split("=")[1];
-        console.log("project Id received",projectId)
-        
-        WebSocketforTerminal.handleUpgrade(req,TCPsocket,head,(establishedconnection)=>{
-            console.log("CONection UPGRADED..............");
-            handleCreateContainer(WebSocketforTerminal,projectId,req,establishedconnection,head);
-        });
-
-         
-
-    }
-
-})
-
-
-WebSocketforTerminal.on('connection', (ws,req,container)=>{
-
-    console.log("TERMINAL CONNECTED");
-
-     handleTerminalCreation(ws,container);
-
-    
-
-
-})

@@ -9,6 +9,9 @@ import { useEffect } from "react";
 import { treeStructureStore } from "../store/treeStructureStore.js";
 import { FolderContextModal } from "../component/Molecules/Modals/FolderContextModal.jsx";
 import { BrowserTerminal } from "../component/Molecules/BrowserTerminal/BrowserTerminal.jsx";
+import { Browser } from "../component/Organisms/TreeStructure/Browser/Browser.jsx";
+import { useContainerPortStore } from "../store/ContainerPortStore.js";
+import { Loading } from "../component/Organisms/TreeStructure/Browser/Loading.jsx";
 
 
 
@@ -18,6 +21,8 @@ export const PlayGround = () => {
 
     const{editorSocket,setEditorSocket}=useEditorsocketStore();
     const{setprojectId}=treeStructureStore();
+
+    const{containerPort}=useContainerPortStore();
     
    
 
@@ -56,7 +61,11 @@ export const PlayGround = () => {
             
 
         </div>
-        <BrowserTerminal/>
+
+        {(editorSocket)?<BrowserTerminal/>:null}
+
+        {(containerPort)?<Browser/>:<Loading/>}
+         
         </>
 
     )

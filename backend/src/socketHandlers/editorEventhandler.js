@@ -1,5 +1,6 @@
 import fs from "fs/promises";
 import pathModule from "path";
+import { getPort } from "../Containers/handleCreateContainer.js";
 
 export const editorEventHandler = (socket) => {
 
@@ -158,5 +159,42 @@ export const editorEventHandler = (socket) => {
             });
         }
     })
+
+    // socket.on('GetContainerPort',async (ProjectId)=>{
+    //     const Port=await getPort(ProjectId);
+
+    //     if(Port){
+    //          socket.emit('RecievedContainerPort',{
+    //             Port:Port,
+    //         });
+    //     }
+
+    // })
+
+    async function waitForPort(ContainerName, timeout = 30000, interval = 1000) {
+        const startTime = Date.now();
+        while (Date.now() - startTime < timeout) {
+          try {
+            const port = await getPort(ContainerName);
+            if (port) {
+              return port;
+            }
+          } catch (err) {
+            // Port not available yet; ignore error and wait before retrying.
+          }
+          await new Promise(resolve => setTimeout(resolve, interval));
+        }
+        throw new Error(`Timeout waiting for port assignment for container ${ContainerName}`);
+      }
+      
+      // Socket event handler using the polling mechanism
+      socket.on('GetContainerPort', async (ProjectId) => {
+        try {
+          const port = await waitForPort(ProjectId, 30000, 1000); // waits up to 30 seconds, checking every second
+          socket.emit('RecievedContainerPort', { Port: port });
+        } catch (error) {
+          socket.emit('PortError', { error: error.message });
+        }
+      });
 
 }

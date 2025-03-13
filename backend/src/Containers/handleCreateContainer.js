@@ -29,7 +29,7 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
         if (ExistingContainer) {
             console.log('Removed Existing Container');
             const container = docker.getContainer(ExistingContainer.Id);
-            console.log("Filtered container is", container.Names);
+            console.log("Filtered container is", ExistingContainer.Names);
             await container.remove({ force: true });
         }
 
@@ -49,11 +49,15 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
             ExposedPorts:{
                 "5173/tcp":{}
             },
-            Env:["HOST=0.0.0.0"],
+            Env:[
+                "HOST=0.0.0.0",
+                "NODE_ENV=development"
+            
+            ],
             HostConfig:{
                 Binds:[
                     //mounting project dir to conationer
-                    `${process.cwd()}/Projects/${projectID}:/home/sandbox/app`
+                    `${process.cwd()}/Projects/${projectID}:/home/sandbox/app:rw`
                 ],
     
                 PortBindings:{
@@ -61,6 +65,10 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
                         "HostPort":"0",
                     }]
                 },
+
+                // Add these for better file system sync
+                ExtraHosts: ["host.docker.internal:host-gateway"],
+                NetworkMode: 'bridge'
                 
                 
             }
@@ -72,6 +80,11 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
         await container.start();
 
         console.log("COntainer started successfully");
+
+
+        const ContainerPort=await getPort(projectID);
+        
+        console.log("COntainer Port on Host ", ContainerPort);
 
 
         // here http connection is upgraded to WebSocket
@@ -93,3 +106,17 @@ export const handleCreateContainer=async(Terminalsocket,projectID,req,Establishe
     
 
 }
+
+export async function getPort (ContainerName) {
+    const allContainers = await docker.listContainers({ all: true });
+    const ExistingContainer = allContainers.find(container => container.Names.includes(`/${ContainerName}`));
+    // console.log(ExistingContainer);
+    if(ExistingContainer ){
+        const ContainerInfo=await docker.getContainer(ExistingContainer.Id).inspect();
+        console.log("ContainerInfo",ContainerInfo);
+        // console.log("INFO OF CONTAINER",ContainerInfo);
+        if(ContainerInfo.State.Status=="running") return ContainerInfo.NetworkSettings.Ports["5173/tcp"][0].HostPort;
+    }
+
+}
+

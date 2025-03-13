@@ -3,6 +3,7 @@ import { activeFileStore } from "./activeFileTabStore.js";
 import { treeStructureStore } from "./treeStructureStore.js";
 import { useFileContextMenuStore } from "./fileContextStore.js";
 import { useFolderContextMenuStore } from "./folderContextStore.js";
+import { useContainerPortStore } from "./ContainerPortStore.js";
 
 export const useEditorsocketStore = create((set) => ({
 
@@ -17,6 +18,7 @@ export const useEditorsocketStore = create((set) => ({
         const setIsOpenFile= useFileContextMenuStore.getState().setIsopen;
 
         const setIsOpenFolder= useFolderContextMenuStore.getState().setIsopen;
+        const ContainerPortSetter= useContainerPortStore.getState().setContainerPort;
 
         //becoz the function in returned by create of zustand in setActiveFiletab is a special func 
         //it is a hook so a hook cannot be called inside another hook 
@@ -52,6 +54,11 @@ export const useEditorsocketStore = create((set) => ({
         })
         incomingSocket.on('renameSuccess',()=>{
             TreeStructuresetter();
+            
+        })
+        incomingSocket.on('RecievedContainerPort',({Port})=>{
+            console.log("Container Port",Port);
+            ContainerPortSetter(Port);
             
         })
 

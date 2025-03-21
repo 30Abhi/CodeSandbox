@@ -67,6 +67,7 @@ export const EditorComponent = () => {
                 editorState.theme &&
                 <Editor
                     height="100vh"
+                    width="100%"
                     defaultLanguage={undefined}
                   
                     defaultValue="// some comment"

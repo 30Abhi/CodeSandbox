@@ -13,7 +13,8 @@ import { Browser } from "../component/Organisms/TreeStructure/Browser/Browser.js
 import { useContainerPortStore } from "../store/ContainerPortStore.js";
 import { Loading } from "../component/Organisms/TreeStructure/Browser/Loading.jsx";
 
-
+import { Allotment } from "allotment";
+import "allotment/dist/style.css";
 
 export const PlayGround = () => {
 
@@ -55,16 +56,61 @@ export const PlayGround = () => {
                 {projectIDfromURL}
                 <TreeStructure />
             </div>
-                {(editorSocket)?<EditorComponent/>:null}
-            <EditorButton isActive={false}/>
+
+            <div style={{
+                height:'100vh',
+                width:'100vw',
+                display:'flex',
+            }}>
+
+
+
+                <Allotment>
+
+                    <div style={{
+                        display:'flex',
+                        flexDirection:'column',
+                        width:'100vw',
+                        height:'100vh',
+                        backgroundColor:'black'
+                    }}>
+
+                        <Allotment vertical={true}>
+                                
+                                {(editorSocket)?<EditorComponent/>:null}
+                           
+                                {(editorSocket)?<BrowserTerminal/>:null}
+
+                         
+
+                        </Allotment>
+
+                        
+                       
+                        
+
+                    </div>
+
+                    
+                        {(containerPort)?<Browser/>:<Loading/>}
+                    
+                    
+                    
+                </Allotment>
+
+
+            </div>
+
+                
+            {/* <EditorButton isActive={false}/> */}
 
             
 
         </div>
 
-        {(editorSocket)?<BrowserTerminal/>:null}
+       
 
-        {(containerPort)?<Browser/>:<Loading/>}
+       
          
         </>
 

@@ -30,7 +30,7 @@ export const Browser=()=>{
 
                 style={{
                     backgroundColor:"#282a35",
-                    width:'100%',
+                    width:'100vw',
                     height:'30px',
                     color:'white',
                     fontFamily:'Fira Code',
@@ -48,7 +48,7 @@ export const Browser=()=>{
                 ref={browserRef}
                 src={`http://localhost:${containerPort}`}
                 style={{
-                    width:'100%',
+                    width:'100vw',
                     height:'95vh',
                     border:'none',
                 }}
